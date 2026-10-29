@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: study
+  config:
+    # 프로젝트 루트의 .env(KEY=VALUE)를 프로퍼티로 읽기 (.env는 .gitignore로 커밋 제외)
+    import: optional:file:.env[.properties]
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      # 이미 만든 테이블을 사용하므로 스키마를 바꾸지 않고, 엔티티와 테이블 구조가 맞는지만 검증
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  web:
+    error:
+      include-message: always
+
+logging:
+  level:
+    # ORM이 실제로 실행하는 SQL 확인 (N+1 점검용)
+    org.hibernate.SQL: debug
