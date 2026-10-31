@@ -40,6 +40,9 @@ public class Rating extends BaseTimeEntity {
 
     public void update(Integer score, String comment) {
         this.score = score;
-        this.comment = comment;
+        // PATCH 요청에서 comment를 생략하면 기존 후기를 그대로 둡니다.
+        if (comment != null) {
+            this.comment = comment;
+        }
     }
 }
