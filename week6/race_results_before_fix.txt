@@ -1,0 +1,13 @@
+# [트러블 슈팅 재현] 워크북 방식(DB 제약 위반을 모두 COMMON4091로 변환)일 때 동시 요청 20건
+== email: 동시 요청 20건
+      1 201 "code":"COMMON201"
+      9 409 "code":"COMMON4091"
+     10 409 "code":"MEMBER4091"
+== nickname: 동시 요청 20건
+      1 201 "code":"COMMON201"
+      9 409 "code":"COMMON4091"
+     10 409 "code":"MEMBER4092"
+== rating: 동시 요청 20건
+      1 201 "code":"COMMON201"
+      8 409 "code":"COMMON4091"
+     11 409 "code":"RATING4091"
