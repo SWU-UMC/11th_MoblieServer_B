@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: movie
+  config:
+    # 프로젝트 루트의 .env(DB_PASSWORD=...)를 읽기. IntelliJ 실행 구성의 환경 변수로 넣어도 동작 (.env는 커밋 제외)
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:mysql://localhost:3306/umc_movie
+    username: root
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+app:
+  cors:
+    # 프론트엔드 개발 서버(Vite 기본 포트). 여러 개면 콤마로 구분
+    # 실험용으로 APP_CORS_ALLOWED_ORIGINS 환경 변수로 덮어쓸 수 있음
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+logging:
+  level:
+    # 실제로 실행되는 SQL 확인용
+    org.hibernate.SQL: debug
