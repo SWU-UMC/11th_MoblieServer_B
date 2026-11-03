@@ -1,0 +1,17 @@
+# [챌린지] 수정 후: 동시 요청 20건 (scripts/race_test.sh)
+
+## 클라이언트가 받은 응답 (상태 코드 / code)
+== email: 동시 요청 20건
+      1 201 "code":"COMMON201"
+     19 409 "code":"MEMBER4091"
+== nickname: 동시 요청 20건
+      1 201 "code":"COMMON201"
+     19 409 "code":"MEMBER4092"
+== rating: 동시 요청 20건
+      1 201 "code":"COMMON201"
+     19 409 "code":"RATING4091"
+
+## 서버 로그: 사전 중복 체크를 통과했지만 DB UNIQUE 제약에서 막힌 요청 (같은 code로 변환됨)
+      5 DB 제약 조건 위반 → MEMBER4091 (Duplicate entry '...' for key 'member.email')
+      5 DB 제약 조건 위반 → MEMBER4092 (Duplicate entry '...' for key 'member.nickname')
+      3 DB 제약 조건 위반 → RATING4091 (Duplicate entry '...' for key 'rating.uk_rating_member_movie')
