@@ -1,0 +1,75 @@
+# Spring Boot 3.5.0 + JPA / MySQL 8.0.43 (umc_movie) - 실행 결과
+
+## [실습 1] 닉네임 중복 체크
+### GET /members/nickname/%EC%88%98%ED%98%84
+{"available":false}
+-> HTTP 200
+
+### GET /members/nickname/%EC%A0%9C%EB%A1%9C
+{"available":true}
+-> HTTP 200
+
+## [실습 2] 이메일 중복 체크
+### GET /members/email/noco@umc.com
+{"available":false}
+-> HTTP 200
+
+### GET /members/email/zero@umc.com
+{"available":true}
+-> HTTP 200
+
+## [실습 3] 유저별 평점 조회 (최신순)
+### GET /members/1/ratings
+[{"ratingId":2,"movieId":155,"score":4,"comment":"다시 봐도 명작","createdAt":"2026-10-25T04:11:02","updatedAt":"2026-10-25T04:11:02"},{"ratingId":1,"movieId":550,"score":5,"comment":"최고의 영화!","createdAt":"2026-10-25T04:11:02","updatedAt":"2026-10-25T04:11:02"}]
+-> HTTP 200
+
+### GET /members/2/ratings
+[{"ratingId":3,"movieId":550,"score":3,"comment":"호불호가 갈릴 것 같아요","createdAt":"2026-10-25T04:11:02","updatedAt":"2026-10-25T04:11:02"}]
+-> HTTP 200
+
+### GET /members/999/ratings
+{"status":404,"message":"존재하지 않는 유저입니다."}
+-> HTTP 404
+
+### GET /members/abc/ratings
+{"status":400,"message":"memberId 값의 형식이 올바르지 않습니다."}
+-> HTTP 400
+
+## [선택] 페이지네이션
+### GET /members/1/ratings?page=0&size=1
+[{"ratingId":2,"movieId":155,"score":4,"comment":"다시 봐도 명작","createdAt":"2026-10-25T04:11:02","updatedAt":"2026-10-25T04:11:02"}]
+-> HTTP 200
+
+### GET /members/1/ratings?page=1&size=1
+[{"ratingId":1,"movieId":550,"score":5,"comment":"최고의 영화!","createdAt":"2026-10-25T04:11:02","updatedAt":"2026-10-25T04:11:02"}]
+-> HTTP 200
+
+### GET /members/1/ratings?page=2&size=1
+[]
+-> HTTP 200
+
+### GET /members/1/ratings?page=-1&size=100
+{"status":400,"message":"page는 0 이상이어야 합니다. / size는 50 이하여야 합니다."}
+-> HTTP 400
+
+## [선택] 형식 검증
+### GET /members/nickname/a
+{"status":400,"message":"닉네임은 2~12자여야 합니다."}
+-> HTTP 400
+
+### GET /members/nickname/abcdefghijklm
+{"status":400,"message":"닉네임은 2~12자여야 합니다."}
+-> HTTP 400
+
+### GET /members/email/not-an-email
+{"status":400,"message":"이메일 형식이 올바르지 않습니다."}
+-> HTTP 400
+
+## CORS 응답 헤더
+### Origin: http://localhost:5173
+HTTP/1.1 200 
+Access-Control-Allow-Origin: http://localhost:5173
+
+### Origin: http://localhost:5174
+HTTP/1.1 403 
+

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UMC Movie - 5주차 API 연결</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1f2328;
+      --muted: #656d76;
+      --border: #d8dee4;
+      --accent: #5b5bd6;
+      --ok-bg: #e6f6ec;
+      --ok-text: #1a7f37;
+      --bad-bg: #ffebe9;
+      --bad-text: #cf222e;
+      --code-bg: #0d1117;
+      --code-text: #e6edf3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    header {
+      padding: 24px 16px 8px;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    header h1 { margin: 0 0 4px; font-size: 22px; }
+    header p { margin: 0; color: var(--muted); font-size: 14px; }
+    .origin {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 8px 16px 40px;
+      display: grid;
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .card h2 { margin: 0 0 4px; font-size: 17px; }
+    .card .spec { margin: 0 0 12px; color: var(--muted); font-size: 13px; font-family: Consolas, monospace; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    label { font-size: 13px; color: var(--muted); }
+    input {
+      flex: 1 1 160px;
+      min-width: 0;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    input.small { flex: 0 1 90px; }
+    button {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.1); }
+    .result { margin-top: 12px; display: none; }
+    .result.show { display: block; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .badge.ok { background: var(--ok-bg); color: var(--ok-text); }
+    .badge.bad { background: var(--bad-bg); color: var(--bad-text); }
+    .url { font-family: Consolas, monospace; font-size: 12px; color: var(--muted); word-break: break-all; margin-bottom: 6px; }
+    pre {
+      margin: 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-size: 13px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; font-size: 13px; }
+    .stars { color: #d4a72c; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🎬 UMC Movie — 5주차 API 연결 화면</h1>
+  <p>브라우저(fetch)에서 Spring Boot 백엔드의 API 3개를 직접 호출합니다.</p>
+  <div class="row" style="margin-top:10px">
+    <label for="baseUrl">백엔드 주소</label>
+    <input id="baseUrl" value="http://localhost:8080" style="flex:0 1 240px">
+    <span class="origin">현재 화면 출처(Origin): <b id="origin"></b></span>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>① 닉네임 중복 체크</h2>
+    <p class="spec">GET /members/nickname/{nickname} → { "available": boolean }</p>
+    <form class="row" data-api="nickname">
+      <input name="value" value="수현" placeholder="닉네임 (2~12자)">
+      <button type="submit">중복 확인</button>
+    </form>
+    <div class="result" id="nickname-result"></div>
+  </section>
+
+  <section class="card">
+    <h2>② 이메일 중복 체크</h2>
+    <p class="spec">GET /members/email/{email} → { "available": boolean }</p>
+    <form class="row" data-api="email">
+      <input name="value" value="noco@umc.com" placeholder="이메일">
+      <button type="submit">중복 확인</button>
+    </form>
+    <div class="result" id="email-result"></div>
+  </section>
+
+  <section class="card">
+    <h2>③ 유저별 평점 조회</h2>
+    <p class="spec">GET /members/{memberId}/ratings?page=0&amp;size=10 → RatingResponse[] (최신순)</p>
+    <form class="row" data-api="ratings">
+      <label>memberId</label><input name="value" class="small" value="1">
+      <label>page</label><input name="page" class="small" value="0">
+      <label>size</label><input name="size" class="small" value="10">
+      <button type="submit">평점 조회</button>
+    </form>
+    <div class="result" id="ratings-result"></div>
+  </section>
+</main>
+
+<script>
+  document.getElementById('origin').textContent = location.origin;
+
+  function buildUrl(api, form) {
+    const base = document.getElementById('baseUrl').value.replace(/\/$/, '');
+    const value = encodeURIComponent(form.value.value.trim());
+    if (api === 'nickname') return `${base}/members/nickname/${value}`;
+    if (api === 'email') return `${base}/members/email/${value}`;
+    const page = encodeURIComponent(form.page.value.trim());
+    const size = encodeURIComponent(form.size.value.trim());
+    return `${base}/members/${value}/ratings?page=${page}&size=${size}`;
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function summary(api, status, body) {
+    if (status !== 200) return `<span class="badge bad">HTTP ${status} · ${escapeHtml(body?.message ?? '오류')}</span>`;
+    if (api === 'ratings') return `<span class="badge ok">HTTP 200 · 평점 ${body.length}개</span>`;
+    return body.available
+      ? '<span class="badge ok">HTTP 200 · 사용 가능 ✅</span>'
+      : '<span class="badge bad">HTTP 200 · 이미 사용 중 ❌</span>';
+  }
+
+  function ratingsTable(list) {
+    if (!Array.isArray(list) || list.length === 0) return '';
+    const rows = list.map(r => `<tr>
+        <td>${r.ratingId}</td><td>${r.movieId}</td>
+        <td><span class="stars">${'★'.repeat(r.score)}${'☆'.repeat(5 - r.score)}</span> ${r.score}</td>
+        <td>${escapeHtml(r.comment)}</td><td>${escapeHtml(r.createdAt)}</td></tr>`).join('');
+    return `<table><thead><tr><th>ratingId</th><th>movieId(TMDB)</th><th>score</th><th>comment</th><th>createdAt</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  document.querySelectorAll('form[data-api]').forEach(form => {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const api = form.dataset.api;
+      const box = document.getElementById(`${api}-result`);
+      const url = buildUrl(api, form);
+      box.classList.add('show');
+      box.innerHTML = `<div class="url">GET ${escapeHtml(url)}</div><pre>요청 중...</pre>`;
+      try {
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(`[${api}]`, res.status, body);
+        box.innerHTML = `<div class="url">GET ${escapeHtml(url)}</div>${summary(api, res.status, body)}
+          <pre>${escapeHtml(JSON.stringify(body, null, 2))}</pre>${api === 'ratings' && res.ok ? ratingsTable(body) : ''}`;
+      } catch (err) {
+        // CORS로 막히면 브라우저는 응답을 숨기고 TypeError: Failed to fetch만 던진다
+        console.error(`[${api}]`, err);
+        box.innerHTML = `<div class="url">GET ${escapeHtml(url)}</div>
+          <span class="badge bad">요청 실패 · ${escapeHtml(err.message)}</span>
+          <pre>브라우저가 응답을 차단했습니다. F12 → Console 탭에서 CORS 에러를 확인하세요.</pre>`;
+      }
+    });
+  });
+</script>
+</body>
+</html>
